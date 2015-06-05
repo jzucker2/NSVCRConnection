@@ -16,6 +16,7 @@
 		97FD26741B21EF4700686B13 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 97FD26721B21EF4700686B13 /* LaunchScreen.xib */; };
 		97FD26801B21EF4700686B13 /* VCRConnectionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 97FD267F1B21EF4700686B13 /* VCRConnectionTests.m */; };
 		97FD268C1B21EFA200686B13 /* JSZNetworkRecorder.m in Sources */ = {isa = PBXBuildFile; fileRef = 97FD268B1B21EFA200686B13 /* JSZNetworkRecorder.m */; };
+		97FD268F1B21FF5900686B13 /* JSZNetworkRecorder+NSURLSessionConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 97FD268E1B21FF5900686B13 /* JSZNetworkRecorder+NSURLSessionConfiguration.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,6 +47,7 @@
 		97FD267F1B21EF4700686B13 /* VCRConnectionTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VCRConnectionTests.m; sourceTree = "<group>"; };
 		97FD268A1B21EFA200686B13 /* JSZNetworkRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JSZNetworkRecorder.h; path = JSZNetworkRecorder/JSZNetworkRecorder.h; sourceTree = "<group>"; };
 		97FD268B1B21EFA200686B13 /* JSZNetworkRecorder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JSZNetworkRecorder.m; path = JSZNetworkRecorder/JSZNetworkRecorder.m; sourceTree = "<group>"; };
+		97FD268E1B21FF5900686B13 /* JSZNetworkRecorder+NSURLSessionConfiguration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "JSZNetworkRecorder+NSURLSessionConfiguration.m"; path = "JSZNetworkRecorder/JSZNetworkRecorder+NSURLSessionConfiguration.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -133,6 +135,7 @@
 			children = (
 				97FD268A1B21EFA200686B13 /* JSZNetworkRecorder.h */,
 				97FD268B1B21EFA200686B13 /* JSZNetworkRecorder.m */,
+				97FD268E1B21FF5900686B13 /* JSZNetworkRecorder+NSURLSessionConfiguration.m */,
 			);
 			name = JSZNetworkRecorder;
 			sourceTree = "<group>";
@@ -242,6 +245,7 @@
 				97FD26661B21EF4700686B13 /* AppDelegate.m in Sources */,
 				97FD26691B21EF4700686B13 /* FirstViewController.m in Sources */,
 				97FD26631B21EF4700686B13 /* main.m in Sources */,
+				97FD268F1B21FF5900686B13 /* JSZNetworkRecorder+NSURLSessionConfiguration.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
