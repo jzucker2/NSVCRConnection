@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		519C32891B2219F200FAC283 /* JSZNetworkRecording.m in Sources */ = {isa = PBXBuildFile; fileRef = 519C32881B2219F200FAC283 /* JSZNetworkRecording.m */; };
 		97FD26631B21EF4700686B13 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 97FD26621B21EF4700686B13 /* main.m */; };
 		97FD26661B21EF4700686B13 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 97FD26651B21EF4700686B13 /* AppDelegate.m */; };
 		97FD26691B21EF4700686B13 /* FirstViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 97FD26681B21EF4700686B13 /* FirstViewController.m */; };
@@ -30,6 +31,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		519C32871B2219F200FAC283 /* JSZNetworkRecording.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JSZNetworkRecording.h; path = JSZNetworkRecorder/JSZNetworkRecording.h; sourceTree = "<group>"; };
+		519C32881B2219F200FAC283 /* JSZNetworkRecording.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JSZNetworkRecording.m; path = JSZNetworkRecorder/JSZNetworkRecording.m; sourceTree = "<group>"; };
 		97FD265D1B21EF4700686B13 /* VCRConnection.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VCRConnection.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		97FD26611B21EF4700686B13 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		97FD26621B21EF4700686B13 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -136,6 +139,8 @@
 				97FD268A1B21EFA200686B13 /* JSZNetworkRecorder.h */,
 				97FD268B1B21EFA200686B13 /* JSZNetworkRecorder.m */,
 				97FD268E1B21FF5900686B13 /* JSZNetworkRecorder+NSURLSessionConfiguration.m */,
+				519C32871B2219F200FAC283 /* JSZNetworkRecording.h */,
+				519C32881B2219F200FAC283 /* JSZNetworkRecording.m */,
 			);
 			name = JSZNetworkRecorder;
 			sourceTree = "<group>";
@@ -244,6 +249,7 @@
 				97FD266C1B21EF4700686B13 /* SecondViewController.m in Sources */,
 				97FD26661B21EF4700686B13 /* AppDelegate.m in Sources */,
 				97FD26691B21EF4700686B13 /* FirstViewController.m in Sources */,
+				519C32891B2219F200FAC283 /* JSZNetworkRecording.m in Sources */,
 				97FD26631B21EF4700686B13 /* main.m in Sources */,
 				97FD268F1B21FF5900686B13 /* JSZNetworkRecorder+NSURLSessionConfiguration.m in Sources */,
 			);
@@ -440,6 +446,7 @@
 				97FD26851B21EF4700686B13 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		97FD26861B21EF4700686B13 /* Build configuration list for PBXNativeTarget "VCRConnectionTests" */ = {
 			isa = XCConfigurationList;
@@ -448,6 +455,7 @@
 				97FD26881B21EF4700686B13 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

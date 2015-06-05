@@ -167,14 +167,70 @@
 
 @end
 
+@interface JSZCustomClient: NSObject  <NSURLProtocolClient>
+@property (nonatomic, weak) id<NSURLProtocolClient>originalClient;
+@property (nonatomic, weak) NSURLSession *session;
++ (instancetype)customClientWithClient:(id<NSURLProtocolClient>)client;
+@end
+
+@implementation JSZCustomClient
+
+- (instancetype)initWithClient:(id<NSURLProtocolClient>)client {
+    self = [super init];
+    if (self) {
+        _originalClient = client;
+    }
+    return self;
+}
+
++ (instancetype)customClientWithClient:(id<NSURLProtocolClient>)client {
+    return [[self alloc] initWithClient:client];
+}
+
+- (void)URLProtocol:(NSURLProtocol *)protocol didCancelAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge {
+    [self.originalClient URLProtocol:protocol didCancelAuthenticationChallenge:challenge];
+}
+
+- (void)URLProtocol:(NSURLProtocol *)protocol didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge {
+    [self.originalClient URLProtocol:protocol didReceiveAuthenticationChallenge:challenge];
+}
+
+- (void)URLProtocol:(NSURLProtocol *)protocol wasRedirectedToRequest:(NSURLRequest *)request redirectResponse:(NSURLResponse *)redirectResponse {
+    [self.originalClient URLProtocol:protocol wasRedirectedToRequest:request redirectResponse:redirectResponse];
+}
+
+- (void)URLProtocol:(NSURLProtocol *)protocol cachedResponseIsValid:(NSCachedURLResponse *)cachedResponse {
+    [self.originalClient URLProtocol:protocol cachedResponseIsValid:cachedResponse];
+}
+
+- (void)URLProtocol:(NSURLProtocol *)protocol didFailWithError:(NSError *)error {
+    [self.originalClient URLProtocol:protocol didFailWithError:error];
+}
+
+- (void)URLProtocol:(NSURLProtocol *)protocol didLoadData:(NSData *)data {
+    [self.originalClient URLProtocol:protocol didLoadData:data];
+}
+
+- (void)URLProtocol:(NSURLProtocol *)protocol didReceiveResponse:(NSURLResponse *)response cacheStoragePolicy:(NSURLCacheStoragePolicy)policy {
+    [self.originalClient URLProtocol:protocol didReceiveResponse:response cacheStoragePolicy:policy];
+}
+
+- (void)URLProtocolDidFinishLoading:(NSURLProtocol *)protocol {
+    [self.originalClient URLProtocolDidFinishLoading:protocol];
+}
+
+@end
+
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Private Protocol Class
 
-@interface JSZNetworkRecorderProtocol()
+@interface JSZNetworkRecorderProtocol() <NSURLConnectionDelegate, NSURLSessionDataDelegate, NSURLSessionTaskDelegate>
 @property(assign) BOOL stopped;
 @property(strong) JSZRecordingDescriptor *recording;
-@property(assign) CFRunLoopRef clientRunLoop;
+@property(strong) id<NSURLProtocolClient>originalClient;
+@property(nonatomic) NSURLConnection *connection;
+//@property(assign) CFRunLoopRef clientRunLoop;
 //- (void)executeOnClientRunLoopAfterDelay:(NSTimeInterval)delayInSeconds block:(dispatch_block_t)block;
 @end
 
@@ -182,13 +238,19 @@
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
-    return ([JSZNetworkRecorder.sharedInstance firstRecordingPassingTestForRequest:request] != nil);
+    if (![JSZNetworkRecorder.sharedInstance firstRecordingPassingTestForRequest:request]) {
+        return NO;
+    }
+    if ([NSURLProtocol propertyForKey:@"myKey" inRequest:request]) {
+        return NO;
+    }
+    return YES;
 }
 
 - (id)initWithRequest:(NSURLRequest *)request cachedResponse:(NSCachedURLResponse *)response client:(id<NSURLProtocolClient>)client
 {
     // Make super sure that we never use a cached response.
-    JSZNetworkRecorderProtocol *proto = [super initWithRequest:request cachedResponse:nil client:client];
+    JSZNetworkRecorderProtocol *proto = [super initWithRequest:request cachedResponse:nil client:[JSZCustomClient customClientWithClient:client]];
     proto.recording = [JSZNetworkRecorder.sharedInstance firstRecordingPassingTestForRequest:request];
     return proto;
 }
@@ -205,7 +267,7 @@
 
 - (void)startLoading
 {
-    self.clientRunLoop = CFRunLoopGetCurrent();
+//    self.clientRunLoop = CFRunLoopGetCurrent();
     NSURLRequest* request = self.request;
     id<NSURLProtocolClient> client = self.client;
     
@@ -224,13 +286,19 @@
         return;
     }
     
-//    OHHTTPStubsResponse* responseStub = self.stub.responseBlock(request);
-//    
-//    if (OHHTTPStubs.sharedInstance.onStubActivationBlock)
-//    {
-//        OHHTTPStubs.sharedInstance.onStubActivationBlock(request, self.stub);
-//    }
-//    
+    if (JSZNetworkRecorder.sharedInstance.onRecordingActivationBlock)
+    {
+        JSZNetworkRecorder.sharedInstance.onRecordingActivationBlock(request, self.recording);
+    }
+    NSLog(@"self.task: %@", self.task);
+    NSMutableURLRequest *mutableRequest = [request mutableCopy];
+    [[self class] setProperty:@(YES) forKey:@"myKey" inRequest:mutableRequest];
+//    self.connection = [NSURLConnection connectionWithRequest:mutableRequest delegate:self];
+    
+    
+    
+    
+//
 //    if (responseStub.error == nil)
 //    {
 //        NSHTTPURLResponse* urlResponse = [[NSHTTPURLResponse alloc] initWithURL:request.URL
@@ -310,6 +378,31 @@
 - (void)stopLoading
 {
     self.stopped = YES;
+    [self.connection cancel];
+    self.connection = nil;
+    [super stopLoading];
+//    NSURLRequest* request = self.request;
+//    id<NSURLProtocolClient> client = self.client;
+//    
+//    if (!self.recording)
+//    {
+//        NSDictionary* userInfo = [NSDictionary dictionaryWithObjectsAndKeys:
+//                                  @"It seems like the recording has been removed BEFORE the response had time to be sent.",
+//                                  NSLocalizedFailureReasonErrorKey,
+//                                  @"For more info, see https://github.com/AliSoftware/OHHTTPStubs/wiki/OHHTTPStubs-and-asynchronous-tests",
+//                                  NSLocalizedRecoverySuggestionErrorKey,
+//                                  request.URL, // Stop right here if request.URL is nil
+//                                  NSURLErrorFailingURLErrorKey,
+//                                  nil];
+//        NSError* error = [NSError errorWithDomain:@"OHHTTPStubs" code:500 userInfo:userInfo];
+//        [client URLProtocol:self didFailWithError:error];
+//        return;
+//    }
+//    
+//    if (JSZNetworkRecorder.sharedInstance.onRecordingActivationBlock)
+//    {
+//        JSZNetworkRecorder.sharedInstance.onRecordingActivationBlock(request, self.recording);
+//    }
 }
 
 //typedef struct {
@@ -432,6 +525,135 @@
 //    });
 //}
 
+//#pragma mark - 
+//
+//- (void)
+//
+#pragma mark - NSURLConnectionDelegate
+
+- (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSHTTPURLResponse *)response {
+//    self.recording.headerFields = response.allHeaderFields;
+//    self.recording.statusCode = response.statusCode;
+    [self.client URLProtocol:self didReceiveResponse:response cacheStoragePolicy:NSURLCacheStorageNotAllowed];
+}
+
+- (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
+//    if (self.recording.data) {
+//        NSMutableData *currentData = [NSMutableData dataWithData:self.recording.data];
+//        [currentData appendData:data];
+//        self.recording.data = currentData;
+//    } else {
+//        self.recording.data = data;
+//    }
+    [self.client URLProtocol:self didLoadData:data];
+}
+
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
+//    self.recording.error = error;
+//    [[[VCRCassetteManager defaultManager] currentCassette] addRecording:self.recording];
+    [self.client URLProtocol:self didFailWithError:error];
+}
+
+- (void)connectionDidFinishLoading:(NSURLConnection *)connection {
+//    [[[VCRCassetteManager defaultManager] currentCassette] addRecording:self.recording];
+    [self.client URLProtocolDidFinishLoading:self];
+}
+
+#pragma mark - NSURLSessionTaskDelegate
+
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
+willPerformHTTPRedirection:(NSHTTPURLResponse *)response
+        newRequest:(NSURLRequest *)request
+ completionHandler:(void (^)(NSURLRequest *))completionHandler {
+    NSLog(@"%s", __PRETTY_FUNCTION__);
+}
+
+/* The task has received a request specific authentication challenge.
+ * If this delegate is not implemented, the session specific authentication challenge
+ * will *NOT* be called and the behavior will be the same as using the default handling
+ * disposition.
+ */
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
+didReceiveChallenge:(NSURLAuthenticationChallenge *)challenge
+ completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential *credential))completionHandler {
+    NSLog(@"%s", __PRETTY_FUNCTION__);
+}
+
+/* Sent if a task requires a new, unopened body stream.  This may be
+ * necessary when authentication has failed for any request that
+ * involves a body stream.
+ */
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
+ needNewBodyStream:(void (^)(NSInputStream *bodyStream))completionHandler {
+    NSLog(@"%s", __PRETTY_FUNCTION__);
+}
+
+/* Sent periodically to notify the delegate of upload progress.  This
+ * information is also available as properties of the task.
+ */
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
+   didSendBodyData:(int64_t)bytesSent
+    totalBytesSent:(int64_t)totalBytesSent
+totalBytesExpectedToSend:(int64_t)totalBytesExpectedToSend {
+    NSLog(@"%s", __PRETTY_FUNCTION__);
+}
+
+/* Sent as the last message related to a specific task.  Error may be
+ * nil, which implies that no error occurred and this task is complete.
+ */
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task
+didCompleteWithError:(NSError *)error {
+    NSLog(@"%s", __PRETTY_FUNCTION__);
+}
+
+#pragma mark - NSURLSessionDataDelegate
+
+/* The task has received a response and no further messages will be
+ * received until the completion block is called. The disposition
+ * allows you to cancel a request or to turn a data task into a
+ * download task. This delegate message is optional - if you do not
+ * implement it, you can get the response as a property of the task.
+ *
+ * This method will not be called for background upload tasks (which cannot be converted to download tasks).
+ */
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
+didReceiveResponse:(NSURLResponse *)response
+ completionHandler:(void (^)(NSURLSessionResponseDisposition disposition))completionHandler {
+    NSLog(@"%s", __PRETTY_FUNCTION__);
+}
+
+/* Notification that a data task has become a download task.  No
+ * future messages will be sent to the data task.
+ */
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
+didBecomeDownloadTask:(NSURLSessionDownloadTask *)downloadTask {
+    NSLog(@"%s", __PRETTY_FUNCTION__);
+}
+
+/* Sent when data is available for the delegate to consume.  It is
+ * assumed that the delegate will retain and not copy the data.  As
+ * the data may be discontiguous, you should use
+ * [NSData enumerateByteRangesUsingBlock:] to access it.
+ */
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
+    didReceiveData:(NSData *)data {
+    NSLog(@"%s", __PRETTY_FUNCTION__);
+}
+
+/* Invoke the completion routine with a valid NSCachedURLResponse to
+ * allow the resulting data to be cached, or pass nil to prevent
+ * caching. Note that there is no guarantee that caching will be
+ * attempted for a given resource, and you should not rely on this
+ * message to receive the resource data.
+ */
+- (void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
+ willCacheResponse:(NSCachedURLResponse *)proposedResponse
+ completionHandler:(void (^)(NSCachedURLResponse *cachedResponse))completionHandler {
+    NSLog(@"%s", __PRETTY_FUNCTION__);
+}
+
 @end
+
+
 
 

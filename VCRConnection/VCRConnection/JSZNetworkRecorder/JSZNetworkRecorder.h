@@ -8,9 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
+#import "JSZNetworkRecording.h"
+
 // typedef returnType (^TypeName)(parameterTypes);
 typedef BOOL (^JSZNetworkRecorderTestBlock)(NSURLRequest *request);
-typedef NSString *(^JSZNetworkRecorderRecordingBlock)(NSURLRequest *request, NSData *data, NSURLResponse *response, NSError *error);
+typedef JSZNetworkRecording * (^JSZNetworkRecorderRecordingBlock)(NSURLRequest *request, NSData *data, NSURLResponse *response, NSError *error);
 
 @protocol JSZRecordingDescriptor
 
